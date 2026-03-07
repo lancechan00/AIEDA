@@ -1,0 +1,8 @@
+model_name: tiny_baseline
+modalities:
+  - geometry
+  - image
+geometry_channels: 4
+image_channels: 3
+hidden_dim: 64
+num_classes: 5

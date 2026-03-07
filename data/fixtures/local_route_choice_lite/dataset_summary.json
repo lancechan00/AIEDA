@@ -1,0 +1,26 @@
+{
+  "task_type": "LocalRouteChoiceLite",
+  "splits": {
+    "train": {
+      "boards": [
+        "board_alpha"
+      ],
+      "num_boards": 1,
+      "num_samples": 2
+    },
+    "val": {
+      "boards": [
+        "board_beta"
+      ],
+      "num_boards": 1,
+      "num_samples": 2
+    },
+    "test": {
+      "boards": [
+        "board_gamma"
+      ],
+      "num_boards": 1,
+      "num_samples": 2
+    }
+  }
+}

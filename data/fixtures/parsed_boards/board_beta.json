@@ -1,0 +1,51 @@
+{
+  "project_name": "board_beta",
+  "board": {
+    "general": {
+      "version": "20221018"
+    },
+    "layers": [
+      {
+        "id": 0,
+        "name": "F.Cu",
+        "type": "signal"
+      }
+    ],
+    "components": [],
+    "tracks": [
+      {
+        "type": "segment",
+        "start": [30.0, 30.0],
+        "end": [18.0, 30.0],
+        "width": 0.25,
+        "layer": "F.Cu",
+        "net": 2
+      },
+      {
+        "type": "segment",
+        "start": [18.0, 30.0],
+        "end": [18.0, 18.0],
+        "width": 0.25,
+        "layer": "F.Cu",
+        "net": 2
+      }
+    ],
+    "vias": [],
+    "nets": [
+      {
+        "id": 2,
+        "name": "NET_B"
+      }
+    ]
+  },
+  "netlist": {
+    "nets": [
+      {
+        "code": 2,
+        "name": "NET_B",
+        "content": ""
+      }
+    ],
+    "components": []
+  }
+}

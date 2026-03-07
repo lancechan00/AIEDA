@@ -1,0 +1,5 @@
+(export
+  (nets
+    (net (code "1") (name "NET_A"))
+  )
+)

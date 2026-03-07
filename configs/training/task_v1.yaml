@@ -1,0 +1,30 @@
+experiment_name: tiny_baseline_fixture
+task_type: LocalRouteChoiceLite
+dataset_path: ./data/fixtures/local_route_choice_lite
+output_dir: ./outputs/tiny_baseline_fixture
+
+model_name: tiny_baseline
+modalities:
+  - geometry
+  - image
+geometry_channels: 4
+image_channels: 3
+hidden_dim: 64
+num_classes: 5
+label_names:
+  - up
+  - down
+  - left
+  - right
+  - stop
+
+batch_size: 2
+num_workers: 0
+epochs: 1
+learning_rate: 0.001
+weight_decay: 0.0
+gradient_clip_norm: 1.0
+save_best_model: true
+log_every_n_steps: 1
+seed: 7
+device: auto

@@ -1,0 +1,51 @@
+{
+  "project_name": "board_gamma",
+  "board": {
+    "general": {
+      "version": "20221018"
+    },
+    "layers": [
+      {
+        "id": 0,
+        "name": "F.Cu",
+        "type": "signal"
+      }
+    ],
+    "components": [],
+    "tracks": [
+      {
+        "type": "segment",
+        "start": [8.0, 28.0],
+        "end": [8.0, 40.0],
+        "width": 0.25,
+        "layer": "F.Cu",
+        "net": 3
+      },
+      {
+        "type": "segment",
+        "start": [8.0, 40.0],
+        "end": [20.0, 40.0],
+        "width": 0.25,
+        "layer": "F.Cu",
+        "net": 3
+      }
+    ],
+    "vias": [],
+    "nets": [
+      {
+        "id": 3,
+        "name": "NET_C"
+      }
+    ]
+  },
+  "netlist": {
+    "nets": [
+      {
+        "code": 3,
+        "name": "NET_C",
+        "content": ""
+      }
+    ],
+    "components": []
+  }
+}

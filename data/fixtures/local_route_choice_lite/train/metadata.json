@@ -1,0 +1,8 @@
+{
+  "split": "train",
+  "task_type": "LocalRouteChoiceLite",
+  "num_samples": 2,
+  "board_ids": [
+    "board_alpha"
+  ]
+}

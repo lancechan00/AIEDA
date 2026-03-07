@@ -1,0 +1,11 @@
+(kicad_pcb
+  (version 20221018)
+  (generator "fixture")
+  (layers
+    (0 "F.Cu" signal)
+    (31 "B.Cu" signal)
+  )
+  (net 1 "NET_A")
+  (segment (start 10 10) (end 22 10) (width 0.25) (layer "F.Cu") (net 1))
+  (segment (start 22 10) (end 22 22) (width 0.25) (layer "F.Cu") (net 1))
+)
