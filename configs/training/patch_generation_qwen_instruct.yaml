@@ -10,12 +10,12 @@ local_files_only: false
 max_input_length: 512
 max_target_length: 128
 generation_max_new_tokens: 192
-eval_generation_samples: 16
+eval_generation_samples: 64
 
 batch_size: 1
 num_workers: 0
-epochs: 2
-learning_rate: 0.00005
+epochs: 6
+learning_rate: 0.00002
 weight_decay: 0.0
 gradient_clip_norm: 1.0
 save_best_model: true
