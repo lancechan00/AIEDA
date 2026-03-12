@@ -49,9 +49,10 @@ class PCBDataset(Dataset):
                     self.samples.append(json.loads(line))
 
         if not self.samples:
-            raise ValueError(f"{data_file} 中没有有效样本")
-
-        self.task_type = self.samples[0].get("task_type", "LocalRouteChoiceLite")
+            logger.warning("%s 无样本，将返回空数据集", data_file)
+            self.task_type = "LocalRouteChoiceLite"
+        else:
+            self.task_type = self.samples[0].get("task_type", "LocalRouteChoiceLite")
         logger.info("加载 %s split: %s 条样本", self.config.split, len(self.samples))
 
     def __len__(self) -> int:

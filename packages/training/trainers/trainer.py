@@ -148,6 +148,12 @@ class Trainer:
             if training and step % self.config.log_every_n_steps == 0:
                 logger.info("step=%s loss=%.4f", step, loss.item())
 
+        if not logits_list:
+            return {
+                "loss": running_loss / max(len(loader), 1),
+                "accuracy": 0.0,
+                "top_3_accuracy": 0.0,
+            }
         epoch_logits = torch.cat(logits_list, dim=0)
         epoch_labels = torch.cat(labels_list, dim=0)
         metrics = compute_metrics(epoch_logits, epoch_labels)

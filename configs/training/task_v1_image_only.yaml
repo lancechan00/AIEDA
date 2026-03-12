@@ -1,11 +1,10 @@
-experiment_name: tiny_baseline_fixture
+experiment_name: tiny_baseline_image_only
 task_type: LocalRouteChoiceLite
 dataset_path: ./data/fixtures/local_route_choice_lite
-output_dir: ./outputs/tiny_baseline_fixture
+output_dir: ./outputs/tiny_baseline_image_only
 
 model_name: tiny_baseline
 modalities:
-  - geometry
   - image
 geometry_channels: 4
 image_channels: 3

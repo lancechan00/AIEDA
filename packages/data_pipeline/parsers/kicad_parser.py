@@ -207,11 +207,15 @@ class KiCadParser:
         return components
 
     def _parse_tracks(self, content: str) -> List[Dict[str, Any]]:
-        """解析走线信息"""
+        """解析走线信息。兼容 KiCad 5（layer 带引号）与 KiCad 6/7（layer 无引号、可选 tstamp）。"""
         tracks = []
 
-        # 简化的走线解析
-        segment_pattern = r'\(segment\s+\(start\s+([\d.-]+)\s+([\d.-]+)\)\s+\(end\s+([\d.-]+)\s+([\d.-]+)\)\s+\(width\s+([\d.-]+)\)\s+\(layer\s+"([^"]+)"\)\s+\(net\s+(\d+)\)\)'
+        # 兼容旧格式 (layer "F.Cu") 与新格式 (layer F.Cu-L1)，支持末尾可选 (tstamp xxx)
+        segment_pattern = (
+            r'\(segment\s+\(start\s+([\d.-]+)\s+([\d.-]+)\)\s+\(end\s+([\d.-]+)\s+([\d.-]+)\)'
+            r'\s+\(width\s+([\d.-]+)\)\s+\(layer\s+"?([^")\s]+)"?\)\s+\(net\s+(\d+)\)'
+            r'(?:\s+\(tstamp\s+\S+\))?\s*\)'
+        )
         matches = re.findall(segment_pattern, content)
 
         for match in matches:
