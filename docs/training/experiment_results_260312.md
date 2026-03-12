@@ -53,6 +53,39 @@
 
 **结论**：预训练 Qwen 能稳定产出可解析的 Patch JSON 结构，字段完整率达标；动作级精确匹配尚需更多训练或数据。
 
+### 5.3 126 板扩数据 Qwen-Instruct Adapter（2026-03-12）
+
+基于与 LocalRouteChoice 相同的扩数据源（`data/embedding/parsed`，126 板），重建 PatchGenerationLite 并跑通 Qwen-Instruct adapter 链路。
+
+| 项目 | 值 |
+|------|-----|
+| 数据目录 | `data/patch_generation_lite` |
+| 数据来源 | `data/embedding/parsed`（与 126 板 LocalRouteChoice 同源） |
+| train 样本/板 | 483 / 124 |
+| val 样本/板 | 64 / 1 |
+| test 样本/板 | 64 / 1 |
+| 配置 | `configs/training/patch_generation_qwen_instruct.yaml` |
+| epochs | 2 |
+| load_pretrained | true |
+| checkpoint | `outputs/patch_generation_qwen_instruct/checkpoints/best_model.pt` |
+
+**Test 评估（open-loop）**：
+
+| 指标 | 值 |
+|------|-----|
+| parse_success_rate | **1.0** |
+| field_completeness_rate | **1.0** |
+| action_exact_match | 0.0 |
+| loss | 0.277 |
+
+**Test 评估（closed-loop Mock）**：
+
+| 指标 | 值 |
+|------|-----|
+| execution_accept_rate | **1.0** |
+
+**结论**：adapter 和结构化输出链已稳定；parse_success、field_completeness、execution_accept 均达 100%，说明生成 Patch 可解析、字段完整且通过 Mock 结构校验。动作级精确匹配为 0，后续可优先提升 action_exact_match 或向真实闭环靠近。
+
 ## 6. 下一步建议
 
 1. Patch 生成：接入本地 Qwen-Instruct 预训练权重，重跑训练与抽样；闭环验证使用 `--closed-loop` 跑 Mock PatchFeedbackBridge
