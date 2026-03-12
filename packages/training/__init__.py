@@ -1,7 +1,15 @@
 """Training package."""
 
 from .config import TrainingConfig
+from .embedding_config import EmbeddingTrainingConfig
 from .datasets import PCBDataset, PCBDatasetBuilder
-from .trainers import Trainer
+from .trainers import EmbeddingTrainer, Trainer
 
-__all__ = ["Trainer", "TrainingConfig", "PCBDataset", "PCBDatasetBuilder"]
+__all__ = [
+    "Trainer",
+    "EmbeddingTrainer",
+    "TrainingConfig",
+    "EmbeddingTrainingConfig",
+    "PCBDataset",
+    "PCBDatasetBuilder",
+]

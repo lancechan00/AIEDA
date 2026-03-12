@@ -41,7 +41,8 @@ class KiCadParser:
                 future = executor.submit(
                     self._parse_single_project,
                     project_path,
-                    output_path
+                    output_path,
+                    source_path,
                 )
                 futures.append(future)
 
@@ -68,8 +69,10 @@ class KiCadParser:
         """检查是否为有效的 KiCad 项目。"""
         return any(project_dir.glob('*.kicad_pcb'))
 
-    def _parse_single_project(self, project_dir: Path, output_dir: Path) -> None:
-        """解析单个 KiCad 项目"""
+    def _parse_single_project(
+        self, project_dir: Path, output_dir: Path, source_dir: Path
+    ) -> None:
+        """解析单个 KiCad 项目。metadata 中路径使用相对路径，便于开源可移植。"""
         project_name = project_dir.name
 
         try:
@@ -98,6 +101,18 @@ class KiCadParser:
                     'components': [],
                 }
 
+            # 使用相对路径，便于开源可移植（兼容 Python 3.8）
+            def _rel_path(p: Path, base: Path) -> str:
+                try:
+                    return str(p.relative_to(base))
+                except ValueError:
+                    return p.name
+
+            pcb_rel = _rel_path(pcb_file, source_dir)
+            netlist_rel = (
+                _rel_path(net_file, source_dir) if net_file is not None else None
+            )
+
             # 合并数据
             project_data = {
                 'project_name': project_name,
@@ -105,10 +120,10 @@ class KiCadParser:
                 'netlist': netlist_data,
                 'metadata': {
                     'source_files': {
-                        'pcb': str(pcb_file),
-                        'netlist': str(net_file) if net_file is not None else None
+                        'pcb': pcb_rel,
+                        'netlist': netlist_rel,
                     },
-                    'parsed_at': str(Path(output_dir) / f"{project_name}.json")
+                    'parsed_at': f"{project_name}.json",
                 }
             }
 

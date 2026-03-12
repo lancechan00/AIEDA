@@ -6,9 +6,18 @@ import json
 import logging
 import random
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple, Union
 
 import numpy as np
+
+
+def _rel_path_for_summary(path: Union[Path, str]) -> str:
+    """将路径转为相对路径，便于开源可移植。"""
+    p = Path(path)
+    try:
+        return str(p.resolve().relative_to(Path.cwd().resolve()))
+    except ValueError:
+        return str(p)
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
@@ -107,7 +116,7 @@ class Trainer:
         summary = {
             "history": self.history,
             "best_accuracy": self.best_accuracy,
-            "output_dir": str(self.output_dir),
+            "output_dir": _rel_path_for_summary(self.output_dir),
         }
         self._save_summary(summary)
         return summary

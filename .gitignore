@@ -147,6 +147,13 @@ outputs/
 !data/sample_cases/
 !outputs/.gitkeep
 
+# Embedding 生成数据（含本地路径或 API 结果，需运行 pipeline 生成）
+data/embedding/raw/
+data/embedding/parsed/
+data/embedding/graph_text_pairs/
+data/embedding/raw_manifest.json
+data/embedding/github_whitelist.json
+
 # Model checkpoints and logs
 *.pth
 *.pt
