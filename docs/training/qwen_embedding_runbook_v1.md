@@ -119,3 +119,17 @@ python -c "from transformers import AutoTokenizer; AutoTokenizer.from_pretrained
 - 降低 `batch_size`
 - 降低 `max_text_length`
 - 先冻结文本塔（默认已开启）
+
+## 6. Stage 1 Adapter 多 seed 复现（2026-03-12）
+
+**定位**：多模态 adapter 路线 Stage 1，Graph → Qwen 语义空间对齐。test split 为 board-disjoint，即 OOD。
+
+```powershell
+.\scripts\run_multi_seed_graph_text_retrieval.ps1
+```
+
+- 训练 3 seeds (7, 42, 123)
+- 评估 test (OOD) + noise_std=0.05
+- 报告：`outputs/embedding_multi_seed_report.json`
+
+覆盖 seed：`--seed` 参数传 `embedding_train_cli.py`。详见 `experiment_results_260312.md` §9.5。

@@ -157,9 +157,29 @@
 | GraphTextRetrieval 训练 | `python .\apps\embedding_train_cli.py --config .\configs\training\embedding_qwen3_0_6b.yaml` |
 | retrieval 评估 | `python .\apps\embedding_eval_cli.py --config .\configs\training\embedding_qwen3_0_6b.yaml --checkpoint .\outputs\qwen3_embedding_graph_text\checkpoints\best_model.pt --split test` |
 | 噪声验证 | `--noise-std 0.05` 同上 |
-| 合并多 seed 报告 | `python .\scripts\merge_multi_seed_report.py --audit .\outputs\multi_seed_audit.json --evals .\outputs\eval_seed*.json` |
+| 合并 LocalRouteChoice 报告 | `python .\scripts\merge_multi_seed_report.py --audit .\outputs\multi_seed_audit.json --evals .\outputs\eval_seed*.json` |
+| GraphTextRetrieval 多 seed（Stage 1） | `.\scripts\run_multi_seed_graph_text_retrieval.ps1` |
+| 合并 embedding 报告 | `python .\scripts\merge_multi_seed_embedding_report.py --output .\outputs\embedding_multi_seed_report.json` |
 
-### 9.5 Qwen3-VL-Embedding-2B PoC
+### 9.5 多模态 Adapter 路线 Stage 1 正式基线 (2026-03-12)
+
+**定位**：Graph → Qwen 语义空间 adapter，冻结文本塔，只训 graph encoder + projector。
+
+**多 seed 复现（3 seeds，test=OOD）**：
+
+| seed | recall@1 | recall@3 | mrr | noise_std=0.05 recall@1 |
+|------|----------|----------|-----|-------------------------|
+| 7 | 0.333 | 1.0 | 0.61 | 0.333 |
+| 42 | 0.333 | 1.0 | 0.61 | 0.333 |
+| 123 | 0.333 | 1.0 | 0.61 | 0.333 |
+
+**汇总**：recall@1_mean=0.333，min=max=0.333，3 seed 完全一致；噪声下无下降。
+
+**OOD**：test split 为 board-disjoint（1 板 vs train 16 板），即 OOD。
+
+**执行**：`.\scripts\run_multi_seed_graph_text_retrieval.ps1`，报告 `outputs/embedding_multi_seed_report.json`。
+
+### 9.6 Qwen3-VL-Embedding-2B PoC (Stage 2 待办)
 
 待实现：需接入 `Qwen/Qwen3-VL-Embedding-2B`，对 PCB 渲染图做 image embedding，与当前 graph-text 检索对比。详见 `docs/training/memo_multimodal_embedding_v1.md`。
 
