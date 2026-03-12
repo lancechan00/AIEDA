@@ -65,7 +65,7 @@
 | val 样本/板 | 64 / 1 |
 | test 样本/板 | 64 / 1 |
 | 配置 | `configs/training/patch_generation_qwen_instruct.yaml` |
-| epochs | 2 |
+| epochs | 6 |
 | load_pretrained | true |
 | checkpoint | `outputs/patch_generation_qwen_instruct/checkpoints/best_model.pt` |
 
@@ -73,10 +73,13 @@
 
 | 指标 | 值 |
 |------|-----|
+| loss | 3.84e-06 |
 | parse_success_rate | **1.0** |
 | field_completeness_rate | **1.0** |
-| action_exact_match | 0.0 |
-| loss | 0.277 |
+| op_match_rate | **1.0** |
+| net_id_match_rate | **1.0** |
+| params_exact_rate | **1.0** |
+| action_exact_match | **1.0** |
 
 **Test 评估（closed-loop Mock）**：
 
@@ -84,7 +87,7 @@
 |------|-----|
 | execution_accept_rate | **1.0** |
 
-**结论**：adapter 和结构化输出链已稳定；parse_success、field_completeness、execution_accept 均达 100%，说明生成 Patch 可解析、字段完整且通过 Mock 结构校验。动作级精确匹配为 0，后续可优先提升 action_exact_match 或向真实闭环靠近。
+**结论**：adapter 和结构化输出链已稳定；open-loop 全指标 100%（parse、字段、op、net_id、params、action_exact_match），closed-loop Mock execution_accept 100%。可解析、字段完整且通过 Mock 结构校验，动作级精确匹配达标。
 
 ## 6. 下一步建议
 

@@ -39,11 +39,17 @@ def compute_patch_metrics(predictions: List[str], targets: List[str]) -> Dict[st
         return {
             "parse_success_rate": 0.0,
             "field_completeness_rate": 0.0,
+            "op_match_rate": 0.0,
+            "net_id_match_rate": 0.0,
+            "params_exact_rate": 0.0,
             "action_exact_match": 0.0,
         }
 
     parse_success = 0
     complete_fields = 0
+    op_match = 0
+    net_id_match = 0
+    params_exact = 0
     exact_match = 0
 
     for pred_text, target_text in zip(predictions, targets):
@@ -56,6 +62,12 @@ def compute_patch_metrics(predictions: List[str], targets: List[str]) -> Dict[st
                 complete_fields += 1
 
         if pred_ok and target_ok and pred_obj is not None and target_obj is not None:
+            if pred_obj.get("op") == target_obj.get("op"):
+                op_match += 1
+            if pred_obj.get("net_id") == target_obj.get("net_id"):
+                net_id_match += 1
+            if pred_obj.get("params") == target_obj.get("params"):
+                params_exact += 1
             if patch_action_exact_match(pred_obj, target_obj):
                 exact_match += 1
 
@@ -63,5 +75,8 @@ def compute_patch_metrics(predictions: List[str], targets: List[str]) -> Dict[st
     return {
         "parse_success_rate": parse_success / total,
         "field_completeness_rate": complete_fields / total,
+        "op_match_rate": op_match / total,
+        "net_id_match_rate": net_id_match / total,
+        "params_exact_rate": params_exact / total,
         "action_exact_match": exact_match / total,
     }

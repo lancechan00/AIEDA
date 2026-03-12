@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from packages.data_pipeline.loaders import PatchGenerationBuilder
@@ -19,6 +20,20 @@ def test_patch_dataset_build_smoke(tmp_path: Path) -> None:
     assert summary["splits"]["train"]["num_samples"] > 0
     assert summary["splits"]["val"]["num_samples"] > 0
     assert summary["splits"]["test"]["num_samples"] > 0
+
+
+def test_patch_dataset_context_includes_net_name(tmp_path: Path) -> None:
+    builder = PatchGenerationBuilder(config={"max_samples_per_board": 8, "max_context_tracks": 4})
+    dataset_dir = tmp_path / "patch_dataset"
+    builder.build_dataset(parsed_data_dir="data/fixtures/parsed_boards", output_dir=str(dataset_dir))
+
+    data_file = dataset_dir / "train" / "data.jsonl"
+    sample = json.loads(data_file.read_text(encoding="utf-8").splitlines()[0])
+    context = json.loads(sample["context_text"])
+
+    assert "net_name" in context["focus"]
+    if context.get("neighbor_tracks"):
+        assert "net_name" in context["neighbor_tracks"][0]
 
 
 def test_patch_generation_train_smoke(tmp_path: Path) -> None:
@@ -50,6 +65,20 @@ def test_patch_metrics_smoke() -> None:
     metrics = compute_patch_metrics(predictions=preds, targets=targets)
     assert metrics["parse_success_rate"] == 1.0
     assert metrics["field_completeness_rate"] == 1.0
+    assert metrics["op_match_rate"] == 1.0
+    assert metrics["net_id_match_rate"] == 1.0
+    assert metrics["params_exact_rate"] == 1.0
+    assert metrics["action_exact_match"] == 1.0
+
+
+def test_patch_metrics_split_semantics() -> None:
+    preds = ['{"op":"add_trace","net_id":"N2","params":{"layer":"F.Cu","points":[[0,0],[1,1]]}}']
+    targets = ['{"op":"add_trace","net_id":"N1","params":{"layer":"F.Cu","points":[[0,0],[1,1]]}}']
+    metrics = compute_patch_metrics(predictions=preds, targets=targets)
+    assert metrics["op_match_rate"] == 1.0
+    assert metrics["net_id_match_rate"] == 0.0
+    assert metrics["params_exact_rate"] == 1.0
+    assert metrics["action_exact_match"] == 0.0
 
 
 def test_patch_closed_loop_eval_smoke(tmp_path: Path) -> None:

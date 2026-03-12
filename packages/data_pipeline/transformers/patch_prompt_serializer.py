@@ -20,9 +20,10 @@ class PatchPromptSerializer:
         all_tracks: List[Dict[str, Any]],
     ) -> str:
         """序列化 segment 级上下文，供 add_trace 生成使用。"""
+        net_names = self._net_map(board)
         focus_net = focus_track.get("net")
         same_net = [track for track in all_tracks if track.get("net") == focus_net]
-        neighbors = self._nearest_tracks(focus_track, all_tracks, top_k=self.max_context_tracks)
+        neighbors = self._nearest_tracks(focus_track, all_tracks, top_k=self.max_context_tracks, net_names=net_names)
 
         payload = {
             "task": "PatchGenerationLite",
@@ -31,6 +32,7 @@ class PatchPromptSerializer:
             "focus": {
                 "element_type": "segment",
                 "net": focus_net,
+                "net_name": net_names.get(focus_net, f"NET_{focus_net}"),
                 "start": focus_track.get("start"),
                 "end": focus_track.get("end"),
                 "width": focus_track.get("width"),
@@ -53,6 +55,7 @@ class PatchPromptSerializer:
         all_tracks: List[Dict[str, Any]],
     ) -> str:
         """序列化 via 级上下文，供 add_via 生成使用。"""
+        net_names = self._net_map(board)
         payload = {
             "task": "PatchGenerationLite",
             "project_name": project_name,
@@ -60,6 +63,7 @@ class PatchPromptSerializer:
             "focus": {
                 "element_type": "via",
                 "net": focus_via.get("net"),
+                "net_name": net_names.get(focus_via.get("net"), f"NET_{focus_via.get('net')}"),
                 "at": focus_via.get("at"),
                 "drill": focus_via.get("drill"),
                 "size": focus_via.get("size"),
@@ -69,6 +73,7 @@ class PatchPromptSerializer:
                 focus_via.get("at"),
                 all_tracks,
                 top_k=self.max_context_tracks,
+                net_names=net_names,
             ),
             "rules": {
                 "via_allowed": True,
@@ -91,6 +96,7 @@ class PatchPromptSerializer:
         focus_track: Dict[str, Any],
         tracks: List[Dict[str, Any]],
         top_k: int,
+        net_names: Dict[Any, str],
     ) -> List[Dict[str, Any]]:
         focus_center = self._segment_center(focus_track.get("start"), focus_track.get("end"))
         scored: List[Tuple[float, Dict[str, Any]]] = []
@@ -100,13 +106,14 @@ class PatchPromptSerializer:
             center = self._segment_center(track.get("start"), track.get("end"))
             scored.append((self._distance(focus_center, center), track))
         scored.sort(key=lambda item: item[0])
-        return [self._track_view(track) for _, track in scored[:top_k]]
+        return [self._track_view(track, net_names) for _, track in scored[:top_k]]
 
     def _nearest_tracks_for_point(
         self,
         point: Any,
         tracks: List[Dict[str, Any]],
         top_k: int,
+        net_names: Dict[Any, str],
     ) -> List[Dict[str, Any]]:
         if not isinstance(point, list) or len(point) < 2:
             return []
@@ -118,16 +125,25 @@ class PatchPromptSerializer:
             center = self._segment_center(track.get("start"), track.get("end"))
             scored.append((self._distance(origin, center), track))
         scored.sort(key=lambda item: item[0])
-        return [self._track_view(track) for _, track in scored[:top_k]]
+        return [self._track_view(track, net_names) for _, track in scored[:top_k]]
 
     @staticmethod
-    def _track_view(track: Dict[str, Any]) -> Dict[str, Any]:
+    def _track_view(track: Dict[str, Any], net_names: Dict[Any, str]) -> Dict[str, Any]:
+        net_id = track.get("net")
         return {
-            "net": track.get("net"),
+            "net": net_id,
+            "net_name": net_names.get(net_id, f"NET_{net_id}"),
             "start": track.get("start"),
             "end": track.get("end"),
             "width": track.get("width"),
             "layer": track.get("layer"),
+        }
+
+    @staticmethod
+    def _net_map(board: Dict[str, Any]) -> Dict[Any, str]:
+        return {
+            net.get("id"): net.get("name", f"NET_{net.get('id')}")
+            for net in board.get("nets", [])
         }
 
     @staticmethod
