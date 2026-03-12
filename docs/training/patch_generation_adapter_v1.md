@@ -25,7 +25,7 @@
 - 训练器：`GenerativeTrainer`
 - 后端：`qwen_instruct`（支持离线 fallback）
 - 评估：`parse_success_rate`、`field_completeness_rate`、`action_exact_match`
-- 闭环接口：`PatchFeedbackBridge` 占位
+- 闭环接口：`PatchFeedbackBridge` 支持 Mock 模式（结构校验），可跑闭环验证
 
 ### 2.2 暂不实现
 
@@ -66,6 +66,16 @@ python .\apps\patch_train_cli.py --config .\configs\training\patch_generation_qw
 ```powershell
 python .\apps\patch_eval_cli.py --config .\configs\training\patch_generation_qwen_instruct.yaml --checkpoint .\outputs\patch_generation_qwen_instruct\checkpoints\best_model.pt --split test
 ```
+
+### 4.4 闭环验证（关键路径）
+
+使用 `PatchFeedbackBridge` Mock 模式校验 Patch 可执行性，并全量评估 test split：
+
+```powershell
+python .\apps\patch_eval_cli.py --config .\configs\training\patch_generation_qwen_instruct.yaml --checkpoint .\outputs\patch_generation_qwen_instruct\checkpoints\best_model.pt --split test --closed-loop
+```
+
+输出将额外包含 `execution_accept_rate`：通过 Mock 结构校验的 Patch 比例。
 
 ## 5. 升级路径
 

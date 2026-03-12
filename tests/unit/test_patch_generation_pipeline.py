@@ -50,3 +50,30 @@ def test_patch_metrics_smoke() -> None:
     metrics = compute_patch_metrics(predictions=preds, targets=targets)
     assert metrics["parse_success_rate"] == 1.0
     assert metrics["field_completeness_rate"] == 1.0
+
+
+def test_patch_closed_loop_eval_smoke(tmp_path: Path) -> None:
+    """验证闭环评估：run_closed_loop 时返回 execution_accept_rate。"""
+    builder = PatchGenerationBuilder(config={"max_samples_per_board": 8, "max_context_tracks": 4})
+    dataset_dir = tmp_path / "patch_dataset"
+    builder.build_dataset(parsed_data_dir="data/fixtures/parsed_boards", output_dir=str(dataset_dir))
+
+    config = GenerativeTrainingConfig(
+        dataset_path=str(dataset_dir),
+        output_dir=str(tmp_path / "outputs"),
+        epochs=1,
+        batch_size=2,
+        num_workers=0,
+        load_pretrained=False,
+        device="cpu",
+        eval_generation_samples=4,
+        generation_max_new_tokens=32,
+    )
+    trainer = GenerativeTrainer(config)
+    trainer.train()
+    ckpt = Path(config.output_dir) / "checkpoints" / "best_model.pt"
+    assert ckpt.exists()
+
+    metrics = trainer.evaluate(split="test", checkpoint_path=str(ckpt), run_closed_loop=True)
+    assert "execution_accept_rate" in metrics
+    assert 0.0 <= metrics["execution_accept_rate"] <= 1.0

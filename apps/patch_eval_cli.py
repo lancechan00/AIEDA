@@ -19,10 +19,11 @@ from packages.training import GenerativeTrainer, GenerativeTrainingConfig
 @click.option("--config", type=click.Path(exists=True), required=True, help="生成训练配置文件")
 @click.option("--checkpoint", type=click.Path(exists=True), required=True, help="模型检查点")
 @click.option("--split", default="test", type=click.Choice(["train", "val", "test"]), show_default=True)
-def main(config: str, checkpoint: str, split: str) -> None:
+@click.option("--closed-loop", is_flag=True, help="运行闭环验证：通过 PatchFeedbackBridge (Mock) 校验可执行性")
+def main(config: str, checkpoint: str, split: str, closed_loop: bool) -> None:
     eval_config = GenerativeTrainingConfig.from_yaml(config)
     trainer = GenerativeTrainer(eval_config)
-    metrics = trainer.evaluate(split=split, checkpoint_path=checkpoint)
+    metrics = trainer.evaluate(split=split, checkpoint_path=checkpoint, run_closed_loop=closed_loop)
     click.echo(json.dumps(metrics, indent=2, ensure_ascii=False))
 
 

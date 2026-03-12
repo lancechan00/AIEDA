@@ -55,6 +55,18 @@
 
 ## 6. 下一步建议
 
-1. Patch 生成：接入本地 Qwen-Instruct 预训练权重，重跑训练与抽样
-2. 视数据规模决定是否保留 image 模态（LocalRouteChoice）
+1. Patch 生成：接入本地 Qwen-Instruct 预训练权重，重跑训练与抽样；闭环验证使用 `--closed-loop` 跑 Mock PatchFeedbackBridge
+2. LocalRouteChoice：收敛为 geometry-only 基线（`task_v1.yaml` / `task_v1_github.yaml` 已默认仅 geometry）
 3. 视结果决定是否接入 DeepSeek-VL / Janus 同任务推理
+
+## 7. GPU 投入决策（2026-03-12）
+
+**暂缓更高配置 GPU**：在以下条件满足前，A4000 16G 足够支撑当前实验。
+
+考虑 GPU 升级的时机：
+
+1. 准备训练/微调真正的多模态后端（DeepSeek-VL、Janus），而非 tiny baseline 或 0.5B 级文本模型
+2. 训练已被 batch_size、max_length、分辨率或多模态输入 packing 明显卡住
+3. 关键路线验证已证明有效，下一步主要矛盾变为“训练太慢、实验周转太慢”
+
+参考：`docs/training/local_route_choice_runbook_v1.md`、`docs/training/qwen_embedding_runbook_v1.md`

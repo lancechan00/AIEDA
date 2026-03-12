@@ -4,9 +4,9 @@ dataset_path: ./data/local_route_choice_lite_github
 output_dir: ./outputs/tiny_baseline_github
 
 model_name: tiny_baseline
+# LocalRouteChoice-Lite 默认基线：仅 geometry（按 experiment_results_260312 消融结论）
 modalities:
   - geometry
-  - image
 geometry_channels: 4
 image_channels: 3
 hidden_dim: 64

@@ -12,7 +12,8 @@ import numpy as np
 import torch
 from torch.utils.data import DataLoader
 
-from ...evaluation import compute_patch_metrics
+from ...evaluation import compute_patch_metrics, parse_patch_text
+from ...environment import PatchFeedbackBridge
 from ...models import PcbMultimodalAdapter, get_backend
 from ..datasets import PatchGenerationDatasetBuilder
 from ..generative_config import GenerativeTrainingConfig
@@ -174,14 +175,23 @@ class GenerativeTrainer:
         self._save_summary(summary)
         return summary
 
-    def _run_epoch(self, loader: DataLoader, training: bool) -> Dict[str, float]:
+    def _run_epoch(
+        self,
+        loader: DataLoader,
+        training: bool,
+        generation_budget_override: Optional[int] = None,
+        closed_loop_bridge: Optional[PatchFeedbackBridge] = None,
+    ) -> Dict[str, float]:
         self.model.train(training)
         running_loss = 0.0
         step_count = 0
 
         predictions: List[str] = []
         targets: List[str] = []
-        generation_budget = self.config.eval_generation_samples if not training else 0
+        budget = generation_budget_override
+        if budget is None:
+            budget = self.config.eval_generation_samples if not training else 0
+        generation_budget = budget if budget >= 0 else 10**6
 
         for step, batch in enumerate(loader, start=1):
             model_inputs = self._build_train_batch(batch)
@@ -221,6 +231,15 @@ class GenerativeTrainer:
         metrics: Dict[str, float] = {"loss": running_loss / max(step_count, 1)}
         if predictions:
             metrics.update(compute_patch_metrics(predictions=predictions, targets=targets))
+            if closed_loop_bridge is not None:
+                accepted = 0
+                for pred_text in predictions:
+                    ok, obj = parse_patch_text(pred_text)
+                    if ok and obj is not None:
+                        result = closed_loop_bridge.apply_patch(obj)
+                        if result.accepted:
+                            accepted += 1
+                metrics["execution_accept_rate"] = accepted / float(len(predictions))
         else:
             metrics.update(
                 {
@@ -229,6 +248,8 @@ class GenerativeTrainer:
                     "action_exact_match": 0.0,
                 }
             )
+            if closed_loop_bridge is not None:
+                metrics["execution_accept_rate"] = 0.0
         return metrics
 
     def _generate_batch(self, prompt_input_ids: torch.Tensor, prompt_attention_mask: torch.Tensor) -> List[str]:
@@ -255,11 +276,27 @@ class GenerativeTrainer:
                 cleaned.append(full_text.strip())
         return cleaned
 
-    def evaluate(self, split: str = "test", checkpoint_path: Optional[str] = None) -> Dict[str, float]:
+    def evaluate(
+        self,
+        split: str = "test",
+        checkpoint_path: Optional[str] = None,
+        run_closed_loop: bool = False,
+    ) -> Dict[str, float]:
+        """评估模型。run_closed_loop=True 时跑 Mock PatchFeedbackBridge 闭环并全量评估。"""
         if checkpoint_path:
             self.load_checkpoint(checkpoint_path)
         loader = self._build_loader(split=split, shuffle=False)
-        return self._run_epoch(loader, training=False)
+        bridge: Optional[PatchFeedbackBridge] = None
+        budget: Optional[int] = None
+        if run_closed_loop:
+            bridge = PatchFeedbackBridge(use_mock=True)
+            budget = 10**6
+        return self._run_epoch(
+            loader,
+            training=False,
+            generation_budget_override=budget,
+            closed_loop_bridge=bridge,
+        )
 
     def load_checkpoint(self, checkpoint_path: str) -> None:
         checkpoint = torch.load(checkpoint_path, map_location=self.device, weights_only=True)
