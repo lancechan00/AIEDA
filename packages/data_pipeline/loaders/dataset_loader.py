@@ -31,7 +31,16 @@ class DatasetLoader:
         if not project_files:
             raise FileNotFoundError(f"在 {parsed_path} 中未找到解析后的项目文件")
 
-        split_projects = self._split_projects(project_files)
+        # 预计算每块板的样本数，用于 sample-aware 切分
+        project_sample_counts: Dict[Path, int] = {}
+        for project_file in project_files:
+            with project_file.open("r", encoding="utf-8") as handle:
+                project_data = json.load(handle)
+            project_sample_counts[project_file] = len(
+                self.sample_extractor.extract_samples_from_project(project_data, task_type)
+            )
+
+        split_projects = self._split_projects(project_files, project_sample_counts)
         summary = {"task_type": task_type, "splits": {}}
 
         for split_name, files in split_projects.items():
@@ -55,10 +64,24 @@ class DatasetLoader:
 
         return summary
 
-    def _split_projects(self, project_files: List[Path]) -> Dict[str, List[Path]]:
+    def _split_projects(
+        self, project_files: List[Path], sample_counts: Dict[Path, int]
+    ) -> Dict[str, List[Path]]:
+        """按 board-level 划分，保证 val 和 test 分配到有样本的板。"""
         total = len(project_files)
         if total < 3:
             raise ValueError("board-level 划分至少需要 3 个已解析板子")
+
+        # 无样本的板排在前面，有样本的板排在后面，确保 val/test 分到有样本的板
+        ordered = sorted(
+            project_files,
+            key=lambda p: (sample_counts.get(p, 0) > 0, str(p)),
+        )
+        with_samples = sum(1 for p in ordered if sample_counts.get(p, 0) > 0)
+        if with_samples < 3:
+            raise ValueError(
+                f"至少需要 3 个能产出样本的板子用于 train/val/test，当前仅有 {with_samples} 个"
+            )
 
         train_count = max(1, total - 2)
         val_count = 1
@@ -67,9 +90,9 @@ class DatasetLoader:
             raise ValueError("无法形成 train/val/test 三个 board-level 划分")
 
         return {
-            "train": project_files[:train_count],
-            "val": project_files[train_count : train_count + val_count],
-            "test": project_files[train_count + val_count : train_count + val_count + test_count],
+            "train": ordered[:train_count],
+            "val": ordered[train_count : train_count + val_count],
+            "test": ordered[train_count + val_count : train_count + val_count + test_count],
         }
 
     def _save_split(

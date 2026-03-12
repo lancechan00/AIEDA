@@ -5,6 +5,11 @@ from .embedding_pair_dataset import (
     EmbeddingPairDatasetBuilder,
     EmbeddingPairDatasetConfig,
 )
+from .patch_generation_dataset import (
+    PatchGenerationDataset,
+    PatchGenerationDatasetBuilder,
+    PatchGenerationDatasetConfig,
+)
 from .pcb_dataset import PCBDataset, PCBDatasetBuilder, PCBDatasetConfig
 
 __all__ = [
@@ -14,4 +19,7 @@ __all__ = [
     "EmbeddingPairDataset",
     "EmbeddingPairDatasetBuilder",
     "EmbeddingPairDatasetConfig",
+    "PatchGenerationDataset",
+    "PatchGenerationDatasetBuilder",
+    "PatchGenerationDatasetConfig",
 ]

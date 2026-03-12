@@ -188,7 +188,7 @@ class Trainer:
         return torch.cat(logits_list, dim=0), torch.cat(labels_list, dim=0)
 
     def load_checkpoint(self, checkpoint_path: str) -> None:
-        checkpoint = torch.load(checkpoint_path, map_location=self.device)
+        checkpoint = torch.load(checkpoint_path, map_location=self.device, weights_only=True)
         self.model.load_state_dict(checkpoint["model_state_dict"])
 
     def _save_checkpoint(self, filename: str, epoch: int, metrics: Dict[str, float]) -> None:

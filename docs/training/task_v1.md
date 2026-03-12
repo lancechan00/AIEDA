@@ -1,8 +1,12 @@
 # v1 训练任务
 
-第一阶段只保留一个任务：
+第一阶段主任务：
 
 `LocalRouteChoice-Lite`
+
+并行实验任务（生成链）：
+
+`PatchGenerationLite`
 
 ## 任务定义
 
@@ -65,4 +69,4 @@
 - `NetRegionMatch`
 - `MockPatchPrediction`
 - 多任务联合训练
-- patch 序列训练
+- 整板级长序列 patch 规划（当前只做 short-patch 生成）

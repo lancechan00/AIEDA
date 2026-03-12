@@ -274,7 +274,7 @@ class EmbeddingTrainer:
         return metrics
 
     def load_checkpoint(self, checkpoint_path: str) -> None:
-        checkpoint = torch.load(checkpoint_path, map_location=self.device)
+        checkpoint = torch.load(checkpoint_path, map_location=self.device, weights_only=True)
         self.graph_encoder.load_state_dict(checkpoint["graph_encoder_state_dict"])
 
     def _save_checkpoint(self, filename: str, epoch: int, metrics: Dict[str, float]) -> None:

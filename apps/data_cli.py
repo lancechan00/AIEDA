@@ -12,7 +12,12 @@ import click
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from packages.data_pipeline.loaders import DatasetLoader, GraphTextPairBuilder, KiCadSourceAuditor
+from packages.data_pipeline.loaders import (
+    DatasetLoader,
+    GraphTextPairBuilder,
+    KiCadSourceAuditor,
+    PatchGenerationBuilder,
+)
 from packages.data_pipeline.parsers import KiCadParser
 
 
@@ -65,6 +70,27 @@ def audit_sources_command(source_dir: str, output_file: str) -> None:
 def build_pairs_command(parsed_dir: str, output_dir: str, seed: int, negatives_per_sample: int) -> None:
     builder = GraphTextPairBuilder(seed=seed, negatives_per_sample=negatives_per_sample)
     summary = builder.build_pairs(parsed_data_dir=parsed_dir, output_dir=output_dir)
+    click.echo(json.dumps(summary, indent=2, ensure_ascii=False))
+
+
+@main.command("build-patches")
+@click.option("--parsed-dir", type=click.Path(exists=True), required=True, help="解析后 JSON 目录")
+@click.option("--output-dir", type=click.Path(), required=True, help="Patch 生成数据输出目录")
+@click.option("--max-samples-per-board", type=int, default=64, show_default=True, help="每块板最大样本数")
+@click.option("--max-context-tracks", type=int, default=16, show_default=True, help="上下文轨迹数量上限")
+def build_patches_command(
+    parsed_dir: str,
+    output_dir: str,
+    max_samples_per_board: int,
+    max_context_tracks: int,
+) -> None:
+    builder = PatchGenerationBuilder(
+        config={
+            "max_samples_per_board": max_samples_per_board,
+            "max_context_tracks": max_context_tracks,
+        }
+    )
+    summary = builder.build_dataset(parsed_data_dir=parsed_dir, output_dir=output_dir)
     click.echo(json.dumps(summary, indent=2, ensure_ascii=False))
 
 

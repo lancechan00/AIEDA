@@ -3,16 +3,18 @@
 from .tiny_baseline import TinyBaselineAdapter
 from .deepseek_vl import DeepSeekVLAdapter
 from .janus import JanusAdapter
+from .qwen_instruct import QwenInstructAdapter
 
-__all__ = ['TinyBaselineAdapter', 'DeepSeekVLAdapter', 'JanusAdapter']
+__all__ = ["TinyBaselineAdapter", "DeepSeekVLAdapter", "JanusAdapter", "QwenInstructAdapter"]
 
 
 def get_backend(backend_name: str):
     """获取模型后端"""
     backends = {
-        'tiny_baseline': TinyBaselineAdapter,
-        'deepseek_vl': DeepSeekVLAdapter,
-        'janus': JanusAdapter
+        "tiny_baseline": TinyBaselineAdapter,
+        "deepseek_vl": DeepSeekVLAdapter,
+        "janus": JanusAdapter,
+        "qwen_instruct": QwenInstructAdapter,
     }
 
     if backend_name not in backends:

@@ -70,6 +70,9 @@ aieda-data = "apps.data_cli:main"
 aieda-eval = "apps.eval_cli:main"
 aieda-embed-train = "apps.embedding_train_cli:main"
 aieda-embed-eval = "apps.embedding_eval_cli:main"
+aieda-patch-train = "apps.patch_train_cli:main"
+aieda-patch-eval = "apps.patch_eval_cli:main"
+aieda-patch-sample = "apps.patch_sample_cli:main"
 
 [tool.setuptools.packages.find]
 where = ["."]

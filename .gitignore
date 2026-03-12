@@ -157,6 +157,9 @@ data/embedding/github_whitelist.json
 # LocalRouteChoice-Lite 从 GitHub parsed 构建（大文件、可能含路径）
 data/local_route_choice_lite_github/
 
+# PatchGenerationLite 从 parsed 构建（同上）
+data/patch_generation_lite/
+
 # Model checkpoints and logs
 *.pth
 *.pt
