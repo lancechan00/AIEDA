@@ -25,7 +25,64 @@
 3. 用 `apps/data_cli.py build` 重新构建 LocalRouteChoice-Lite，保持 `--seed` 一致以便复现。
 4. 构建后审计 `dataset_summary.json` 的 split 分布与 label 分布。
 
-## 5. 参考
+## 5. 数据源参考（快速扩数）
+
+### 5.1 KiCad 官方示例（GitLab）
+
+- **位置**：<https://gitlab.com/kicad/code/kicad/-/tree/master/demos>
+- **获取**：`git clone --depth 1 https://gitlab.com/kicad/code/kicad.git`，取 `kicad/demos/` 下各子目录（如 `pic_programmer`、`jetson-agx-thor-baseboard`、`tiny_tapeout` 等）
+- **说明**：非 GitHub 格式，需单独解析后并入 `data/embedding/parsed`，或写脚本转为与 GitHub 相同结构
+
+### 5.2 公开 Open Hardware 精选（GitHub）
+
+| 来源 | 说明 |
+|------|------|
+| [aeonSolutions/PCB-Prototyping-Catalogue](https://github.com/aeonSolutions/PCB-Prototyping-Catalogue) | 78 个 KiCad 项目，多为智能设备/AI 硬件 |
+| [synthetos/KicadExample](https://github.com/synthetos/KicadExample) | 入门示例板 |
+| [aspro648/KiCad-Hello-World](https://github.com/aspro648/KiCad-Hello-World) | 1 小时快速 PCB 示例 |
+| [sparkfun](https://github.com/sparkfun) | 搜索含 `kicad` 的仓库 |
+| [splitflap](https://github.com/scottbez1/splitflap) | DIY 翻牌显示，含 KiCad PCB |
+
+### 5.3 已知能解析出 track 的仓库（当前在用）
+
+`data/local_route_choice_lite_github/dataset_summary.json` 中的 `boards` 即为已验证可解析的板子。白名单中已包含的例如：
+
+- `StuckAtPrototype/Racer`
+- `atopile/atopile`
+- `yaqwsx/KiKit`、`yaqwsx/PcbDraw`
+- `fossasia/pslab-hardware`
+- `soulscircuit/pilet`
+- `Nicholas-L-Johnson/flip-card`
+- `skuep/AIOC`、`yaqwsx/PcbDraw/examples/resources` 等
+
+可在此基础上，从 5.2 中挑选新仓库，加入 `data/embedding/github_whitelist_extra.json`，再合并进主白名单。
+
+### 5.4 手动下载（无需写进白名单）
+
+**你手动下载的 KiCad 官方示例 / Open Hardware 精选**：
+
+1. 放进 `data/embedding/raw/`，每个工程一个子目录，目录内需含 `.kicad_pcb` 文件
+2. 执行 parse：`python apps/data_cli.py parse --source-dir data/embedding/raw --output-dir data/embedding/parsed --parallel 4`
+3. 执行 build：`python apps/data_cli.py build --parsed-dir data/embedding/parsed --output-dir data/local_route_choice_lite_github`
+
+**白名单 (github_whitelist.json) 仅用于 GitHub 自动下载**：名单由脚本维护，手动下载的工程**不需要**加入白名单。
+
+### 5.5 手动追加 GitHub 白名单（可选）
+
+在 `data/embedding/github_whitelist.json` 的 `included_repositories` 中加入条目，格式：
+
+```json
+{
+  "full_name": "owner/repo",
+  "html_url": "https://github.com/owner/repo",
+  "default_branch": "main",
+  "license_spdx": "MIT"
+}
+```
+
+然后运行 `github_kicad_download.py` 拉取，`parse` 解析，`build` 构建 LocalRouteChoice。
+
+## 6. 参考
 
 - `docs/data/kicad_dataset_plan.md`：数据管道整体设计
 - `docs/training/local_route_choice_runbook_v1.md`：训练与评估口径

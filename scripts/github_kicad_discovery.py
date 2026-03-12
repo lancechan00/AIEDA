@@ -16,6 +16,26 @@ from pathlib import Path
 from typing import Dict, Iterable, List, Optional
 
 
+def _load_dotenv() -> None:
+    """从项目根目录 .env 加载环境变量，使 GITHUB_TOKEN 生效。"""
+    root = Path(__file__).resolve().parent.parent
+    env_path = root / ".env"
+    if not env_path.exists():
+        return
+    for line in env_path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        key, value = key.strip(), value.strip()
+        if value.startswith('"') and value.endswith('"'):
+            value = value[1:-1]
+        elif value.startswith("'") and value.endswith("'"):
+            value = value[1:-1]
+        if key and value and key not in os.environ:
+            os.environ[key] = value
+
+
 PERMISSIVE_LICENSES = {
     "MIT",
     "Apache-2.0",
