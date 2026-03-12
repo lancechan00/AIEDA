@@ -20,10 +20,11 @@
 
 ## 4. 扩充流程建议
 
-1. 用 `scripts/github_kicad_discovery.py` 扩展白名单，增加更多项目。
-2. 用 `scripts/github_kicad_download.py` 或 `run_kicad_github_pipeline.ps1` 拉取。
-3. 用 `apps/data_cli.py build` 重新构建 LocalRouteChoice-Lite，保持 `--seed` 一致以便复现。
-4. 构建后审计 `dataset_summary.json` 的 split 分布与 label 分布。
+1. 用 `scripts/github_kicad_discovery.py` 扩展白名单，增加更多项目；或按 5.5 手动追加。
+2. 运行扩数脚本一键执行下载、解析、构建：`.\scripts\run_board_expansion.ps1`
+3. 或手动：`github_kicad_download.py` → `apps/data_cli.py parse` → `apps/data_cli.py build`
+4. 构建后审计 `dataset_summary.json` 的 split 分布与 label 分布；运行 `scripts/audit_local_route_choice_dataset.py`。
+5. 将本轮 board 数、样本数、test acc 记录到 [expansion_log.md](expansion_log.md)，跟踪收益曲线。
 
 ## 5. 数据源参考（快速扩数）
 

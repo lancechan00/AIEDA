@@ -18,9 +18,12 @@ from packages.training import Trainer, TrainingConfig
 @click.command()
 @click.option("--config", type=click.Path(exists=True), required=True, help="训练配置文件")
 @click.option("--output-dir", type=click.Path(), default=None, help="覆盖输出目录")
-def main(config: str, output_dir: str | None) -> None:
+@click.option("--seed", type=int, default=None, help="覆盖 config 中的 seed，用于多 seed 复现")
+def main(config: str, output_dir: str | None, seed: int | None) -> None:
     """训练 `tiny_baseline`。"""
     train_config = TrainingConfig.from_yaml(config)
+    if seed is not None:
+        train_config.seed = seed
     trainer = Trainer(train_config, output_dir=output_dir)
     summary = trainer.train()
     click.echo(json.dumps(summary, indent=2, ensure_ascii=False))

@@ -69,4 +69,17 @@
 2. 训练已被 batch_size、max_length、分辨率或多模态输入 packing 明显卡住
 3. 关键路线验证已证明有效，下一步主要矛盾变为“训练太慢、实验周转太慢”
 
+## 8. 126 板正式基线 (2026-03-12)
+
+扩数据后 (126 board-level) 的 geometry-only 结果已固化为正式基线：
+
+| 指标 | 扩数据前 (18 板) | 扩数据后 (126 板) |
+|------|------------------|-------------------|
+| test accuracy | 25% | **68.8%** |
+| test top_3 | 75–80% | **89.1%** |
+| val best_acc | 20.3% | **59.4%** |
+
+详见 [baseline_local_route_choice_126.md](baseline_local_route_choice_126.md)。后续所有改动均与此基线对比。
+
 参考：`docs/training/local_route_choice_runbook_v1.md`、`docs/training/qwen_embedding_runbook_v1.md`
+

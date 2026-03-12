@@ -51,7 +51,31 @@ python .\apps\data_cli.py build --parsed-dir .\data\embedding\parsed --output-di
 
 参考 `scripts/run_kicad_github_pipeline.ps1` 完成 GitHub 采集与解析。
 
-## 6. 后续扩数建议
+## 6. 多 seed 复现与审计
+
+```powershell
+.\scripts\run_multi_seed_local_route_choice.ps1
+```
+
+运行 3 个 seed (7, 42, 123)，训练、评估并合并报告到 `outputs/multi_seed_audit.json`。用于判断基线是否稳定。
+
+类别分布审计：
+
+```powershell
+python scripts/audit_local_route_choice_dataset.py --data-dir ./data/local_route_choice_lite_github --output outputs/audit_label_distribution.json
+```
+
+## 7. 扩数与收益跟踪
+
+扩数一键流程（在已更新白名单后）：
+
+```powershell
+.\scripts\run_board_expansion.ps1
+```
+
+每轮扩数后，将 board 数、样本数、test accuracy 记录到 [expansion_log.md](expansion_log.md)。基线与 stage-gate 参考 [baseline_local_route_choice_126.md](baseline_local_route_choice_126.md)、[stage_gate_checklist.md](stage_gate_checklist.md)。
+
+## 8. 后续扩数建议
 
 扩数时优先增加 **板级多样性**，而非同一板上堆样本：
 
