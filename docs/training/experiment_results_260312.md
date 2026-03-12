@@ -119,3 +119,47 @@
 
 参考：`docs/training/local_route_choice_runbook_v1.md`、`docs/training/qwen_embedding_runbook_v1.md`
 
+## 9. 验证实验清单（2026-03-12 执行）
+
+### 9.1 geometry-only 多 seed 复现
+
+| seed | test acc | test top_3 | test loss |
+|------|----------|------------|-----------|
+| 7 | **68.75%** | 89.1% | 1.05 |
+| 42 | 50.0% | 89.1% | 1.25 |
+| 123 | 51.6% | 87.5% | 1.11 |
+
+**结论**：test acc 波动大（50%–68.75%），说明基线对 seed 敏感。seed 7 复现了此前 68.8% 基线，但 42/123 明显偏低，建议后续增加 epochs 或调整超参以稳定。
+
+### 9.2 GraphTextRetrieval 训练与评估
+
+| 指标 | val (3 epochs) | test |
+|------|----------------|------|
+| recall_at_1 | 0.5 | **0.333** |
+| recall_at_3 | 1.0 | **1.0** |
+| recall_at_5 | 1.0 | **1.0** |
+| mrr | 0.75 | **0.61** |
+
+### 9.3 retrieval 噪声敏感性
+
+| noise_std | recall_at_1 | recall_at_3 | mrr |
+|-----------|-------------|-------------|-----|
+| 0.0 | 0.333 | 1.0 | 0.61 |
+| 0.05 | 0.333 | 1.0 | 0.61 |
+
+**结论**：noise_std=0.05 下指标无下降，对轻微噪声鲁棒。
+
+### 9.4 实验执行命令速查
+
+| 实验 | 命令 |
+|------|------|
+| 多 seed LocalRouteChoice | `.\scripts\run_multi_seed_local_route_choice.ps1` |
+| GraphTextRetrieval 训练 | `python .\apps\embedding_train_cli.py --config .\configs\training\embedding_qwen3_0_6b.yaml` |
+| retrieval 评估 | `python .\apps\embedding_eval_cli.py --config .\configs\training\embedding_qwen3_0_6b.yaml --checkpoint .\outputs\qwen3_embedding_graph_text\checkpoints\best_model.pt --split test` |
+| 噪声验证 | `--noise-std 0.05` 同上 |
+| 合并多 seed 报告 | `python .\scripts\merge_multi_seed_report.py --audit .\outputs\multi_seed_audit.json --evals .\outputs\eval_seed*.json` |
+
+### 9.5 Qwen3-VL-Embedding-2B PoC
+
+待实现：需接入 `Qwen/Qwen3-VL-Embedding-2B`，对 PCB 渲染图做 image embedding，与当前 graph-text 检索对比。详见 `docs/training/memo_multimodal_embedding_v1.md`。
+

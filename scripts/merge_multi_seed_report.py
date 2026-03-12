@@ -35,7 +35,7 @@ def main() -> None:
         if not eval_path.exists():
             continue
         try:
-            with eval_path.open("r", encoding="utf-8") as f:
+            with eval_path.open("r", encoding="utf-8-sig") as f:
                 raw = f.read().strip()
             metrics = json.loads(raw)
             seed = eval_path.stem.replace("eval_seed", "")
