@@ -60,6 +60,11 @@ mlflow = [
 wandb = [
     "wandb>=0.13.0",
 ]
+stage2 = [
+    "transformers>=4.57.0",
+    "qwen-vl-utils>=0.0.14",
+    "huggingface-hub>=0.20.0",
+]
 all = [
     "ai-eda[dev,gpu,mlflow,wandb]",
 ]

@@ -179,7 +179,25 @@
 
 **执行**：`.\scripts\run_multi_seed_graph_text_retrieval.ps1`，报告 `outputs/embedding_multi_seed_report.json`。
 
-### 9.6 Qwen3-VL-Embedding-2B PoC (Stage 2 待办)
+### 9.6 Qwen3-VL-Embedding-2B PoC (Stage 2 已实现)
 
-待实现：需接入 `Qwen/Qwen3-VL-Embedding-2B`，对 PCB 渲染图做 image embedding，与当前 graph-text 检索对比。详见 `docs/training/memo_multimodal_embedding_v1.md`。
+**实现内容**：
+- `ImageTextPairBuilder`：从 parsed 渲染 PCB 图像，构建 image-text pairs（与 graph-text 同 split）
+- `build-image-pairs` 命令：`python apps/data_cli.py build-image-pairs --parsed-dir ./data/embedding/parsed --output-dir ./data/embedding/image_text_pairs`
+- `image_text_retrieval_poc.py`：加载 Qwen3-VL-Embedding-2B，做 image-text 检索评估
+
+**依赖**：`pip install ai-eda[stage2]`（qwen-vl-utils>=0.0.14）
+
+**执行**：
+```powershell
+# 1. 构建 image-text 数据
+python apps/data_cli.py build-image-pairs --parsed-dir ./data/embedding/parsed --output-dir ./data/embedding/image_text_pairs
+
+# 2. 运行 PoC（首次会下载 2B 模型，较慢）
+python apps/image_text_retrieval_poc.py --data-dir ./data/embedding/image_text_pairs --split test
+```
+
+**报告**：`outputs/stage2_image_text_poc.json`
+
+对比 Stage 1 graph-text 与 Stage 2 image-text 的 recall@1/mrr 即可判断 image 模态是否带来增益。
 

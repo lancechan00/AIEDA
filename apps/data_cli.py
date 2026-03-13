@@ -15,6 +15,7 @@ sys.path.insert(0, str(project_root))
 from packages.data_pipeline.loaders import (
     DatasetLoader,
     GraphTextPairBuilder,
+    ImageTextPairBuilder,
     KiCadSourceAuditor,
     PatchGenerationBuilder,
 )
@@ -69,6 +70,28 @@ def audit_sources_command(source_dir: str, output_file: str) -> None:
 @click.option("--negatives-per-sample", type=int, default=2, show_default=True, help="每条样本硬负样本数")
 def build_pairs_command(parsed_dir: str, output_dir: str, seed: int, negatives_per_sample: int) -> None:
     builder = GraphTextPairBuilder(seed=seed, negatives_per_sample=negatives_per_sample)
+    summary = builder.build_pairs(parsed_data_dir=parsed_dir, output_dir=output_dir)
+    click.echo(json.dumps(summary, indent=2, ensure_ascii=False))
+
+
+@main.command("build-image-pairs")
+@click.option("--parsed-dir", type=click.Path(exists=True), required=True, help="解析后 JSON 目录")
+@click.option("--output-dir", type=click.Path(), required=True, help="image-text pair 输出目录")
+@click.option("--seed", type=int, default=7, show_default=True, help="随机种子")
+@click.option("--negatives-per-sample", type=int, default=2, show_default=True, help="每条样本硬负样本数")
+@click.option("--image-size", type=int, default=512, show_default=True, help="渲染图像边长")
+def build_image_pairs_command(
+    parsed_dir: str,
+    output_dir: str,
+    seed: int,
+    negatives_per_sample: int,
+    image_size: int,
+) -> None:
+    builder = ImageTextPairBuilder(
+        seed=seed,
+        negatives_per_sample=negatives_per_sample,
+        image_size=image_size,
+    )
     summary = builder.build_pairs(parsed_data_dir=parsed_dir, output_dir=output_dir)
     click.echo(json.dumps(summary, indent=2, ensure_ascii=False))
 

@@ -46,7 +46,15 @@
 
 ---
 
-## 5. 关联文档
+## 5. 学术界评价体系
+
+PCB placement/routing 方向已有学术界标准化 benchmark：**[PCB-Bench](https://openreview.net/forum?id=Q5QLu7XTWx)**（ICLR 2026）。涵盖：(1) 文本推理 ~3,700 QA/CQ，(2) 多模态图文推理 ~500 题，(3) 真实 PCB 项目理解 174 项。可作为横向对比与评估参考。代码与数据见 [PCB-Bench GitHub](https://github.com/digailab/PCB-Bench)。
+
+补充：若目标收敛为“输出 PCB 线路图本身”，则训练输入应优先保留走线、网络、层等版图信息，而不是仅用统计特征值做过度压缩编码；当前 `GraphTextRetrieval` 更适合作为过渡性探索。
+
+---
+
+## 6. 关联文档
 
 - 第一阶段目标：`docs/overview/project_goal.md`
 - 架构与约束：`docs/overview/architecture_v1.md`
